@@ -2,19 +2,19 @@
 session_start();
 include 'baglanti.php';
 
-// 🔒 GİRİŞ KONTROLÜ
+// Giriş kontrolü
 if (!isset($_SESSION['KullaniciID'])) {
     header("Location: login.php");
     exit;
 }
 
-// 🔒 YETKİ KONTROLÜ: SADECE ADMIN
+// Yetki kontrolü
 if ($_SESSION['Role'] != 'admin') {
     echo "Bu sayfaya erişim yetkiniz yok.";
     exit;
 }
 
-// ARAMA
+// Arama sorgusu güvenli hale getirildi
 $arama = "";
 if(isset($_GET['arama'])){
     $arama = $conn->real_escape_string($_GET['arama']);
@@ -29,13 +29,13 @@ if(isset($_GET['arama'])){
 }
 $result = $conn->query($query);
 
-// EKLEME
+// Ekleme işlemi
 if(isset($_POST['ekle'])){
-  $sicil = $_POST['sicil'];
-  $ad = $_POST['ad'];
-  $soyad = $_POST['soyad'];
-  $departman = $_POST['departman'];
-  $gorev = $_POST['gorev'];
+  $sicil = $conn->real_escape_string($_POST['sicil']);
+  $ad = $conn->real_escape_string($_POST['ad']);
+  $soyad = $conn->real_escape_string($_POST['soyad']);
+  $departman = $conn->real_escape_string($_POST['departman']);
+  $gorev = $conn->real_escape_string($_POST['gorev']);
 
   $sql = "INSERT INTO Personel (Sicil, Ad, Soyad, Departman, Gorev)
           VALUES ('$sicil', '$ad', '$soyad', '$departman', '$gorev')";
@@ -48,9 +48,9 @@ if(isset($_POST['ekle'])){
   }
 }
 
-// SİLME
+// Silme işlemi
 if(isset($_GET['sil'])){
-  $id = $_GET['sil'];
+  $id = (int)$_GET['sil'];
   $sql = "DELETE FROM Personel WHERE PersonelID=$id";
   if ($conn->query($sql) === TRUE) {
     header("Location: personel.php");
@@ -60,14 +60,14 @@ if(isset($_GET['sil'])){
   }
 }
 
-// GÜNCELLEME
+// Güncelleme işlemi
 if(isset($_POST['guncelle'])){
-  $id = $_POST['id'];
-  $sicil = $_POST['sicil'];
-  $ad = $_POST['ad'];
-  $soyad = $_POST['soyad'];
-  $departman = $_POST['departman'];
-  $gorev = $_POST['gorev'];
+  $id = (int)$_POST['id'];
+  $sicil = $conn->real_escape_string($_POST['sicil']);
+  $ad = $conn->real_escape_string($_POST['ad']);
+  $soyad = $conn->real_escape_string($_POST['soyad']);
+  $departman = $conn->real_escape_string($_POST['departman']);
+  $gorev = $conn->real_escape_string($_POST['gorev']);
 
   $sql = "UPDATE Personel SET 
             Sicil='$sicil',
@@ -87,85 +87,154 @@ if(isset($_POST['guncelle'])){
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <title>Personel İşlemleri</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Personel Yönetimi</title>
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <link href="css/sb-admin-2.min.css" rel="stylesheet" />
 </head>
-<body>
+<body id="page-top">
+    <div id="wrapper">
 
-<h2>Personel İşlemleri (Admin)</h2>
+        <?php include 'sidebar.php'; ?>
 
-<!-- 🔍 ARAMA FORMU -->
-<form method="GET" action="">
-    <input type="text" name="arama" placeholder="Personel ara..." value="<?php echo htmlspecialchars($arama); ?>">
-    <button type="submit">Ara</button>
-</form>
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
 
-<!-- ➕ EKLEME FORMU -->
-<h3>Personel Ekle</h3>
-<form method="POST">
-  Sicil: <input type="text" name="sicil" required><br>
-  Ad: <input type="text" name="ad" required><br>
-  Soyad: <input type="text" name="soyad" required><br>
-  Departman: <input type="text" name="departman"><br>
-  Görev: <input type="text" name="gorev"><br>
-  <input type="submit" name="ekle" value="Ekle">
-</form>
+                <?php include 'topbar.php'; ?>
 
-<!-- 📋 PERSONEL LİSTESİ -->
-<h3>Personel Listesi</h3>
-<table border="1">
-  <tr>
-    <th>ID</th>
-    <th>Sicil</th>
-    <th>Ad</th>
-    <th>Soyad</th>
-    <th>Departman</th>
-    <th>Görev</th>
-    <th>İşlem</th>
-  </tr>
-  <?php
-  if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()){ ?>
-    <tr>
-      <td><?php echo $row['PersonelID']; ?></td>
-      <td><?php echo $row['Sicil']; ?></td>
-      <td><?php echo $row['Ad']; ?></td>
-      <td><?php echo $row['Soyad']; ?></td>
-      <td><?php echo $row['Departman']; ?></td>
-      <td><?php echo $row['Gorev']; ?></td>
-      <td>
-        <a href="?sil=<?php echo $row['PersonelID']; ?>">Sil</a> | 
-        <a href="?duzenle=<?php echo $row['PersonelID']; ?>">Düzenle</a>
-      </td>
-    </tr>
-  <?php } 
-  } else { ?>
-    <tr><td colspan="7">Sonuç bulunamadı.</td></tr>
-  <?php } ?>
-</table>
+                <div class="container-fluid">
+                    <h2>Personel İşlemleri (Admin)</h2>
 
-<!-- ✏️ GÜNCELLEME FORMU -->
-<?php
-if(isset($_GET['duzenle'])){
-  $id = $_GET['duzenle'];
-  $sql = "SELECT * FROM Personel WHERE PersonelID=$id";
-  $result = $conn->query($sql);
-  $row = $result->fetch_assoc();
-?>
-<hr>
-<h3>Personel Güncelle</h3>
-<form method="POST">
-  <input type="hidden" name="id" value="<?php echo $row['PersonelID']; ?>">
-  Sicil: <input type="text" name="sicil" value="<?php echo $row['Sicil']; ?>" required><br>
-  Ad: <input type="text" name="ad" value="<?php echo $row['Ad']; ?>" required><br>
-  Soyad: <input type="text" name="soyad" value="<?php echo $row['Soyad']; ?>" required><br>
-  Departman: <input type="text" name="departman" value="<?php echo $row['Departman']; ?>"><br>
-  Görev: <input type="text" name="gorev" value="<?php echo $row['Gorev']; ?>"><br>
-  <input type="submit" name="guncelle" value="Güncelle">
-</form>
-<?php } ?>
+                    <!-- Arama Formu -->
+                    <form method="GET" action="" class="form-inline mb-3">
+                        <input type="text" name="arama" class="form-control mr-2" placeholder="Personel ara..." value="<?php echo htmlspecialchars($arama); ?>">
+                        <button type="submit" class="btn btn-primary">Ara</button>
+                    </form>
 
+                    <!-- Ekleme Formu -->
+                    <h3>Personel Ekle</h3>
+                    <form method="POST" class="mb-4">
+                      <div class="form-group">
+                        <label>Sicil:</label>
+                        <input type="text" name="sicil" class="form-control" required>
+                      </div>
+                      <div class="form-group">
+                        <label>Ad:</label>
+                        <input type="text" name="ad" class="form-control" required>
+                      </div>
+                      <div class="form-group">
+                        <label>Soyad:</label>
+                        <input type="text" name="soyad" class="form-control" required>
+                      </div>
+                      <div class="form-group">
+                        <label>Departman:</label>
+                        <input type="text" name="departman" class="form-control">
+                      </div>
+                      <div class="form-group">
+                        <label>Görev:</label>
+                        <input type="text" name="gorev" class="form-control">
+                      </div>
+                      <button type="submit" name="ekle" class="btn btn-success mt-2">Ekle</button>
+                    </form>
+
+                    <!-- Personel Listesi -->
+                    <h3>Personel Listesi</h3>
+                    <table class="table table-bordered table-striped">
+                      <thead class="thead-dark">
+                        <tr>
+                          <th>ID</th>
+                          <th>Sicil</th>
+                          <th>Ad</th>
+                          <th>Soyad</th>
+                          <th>Departman</th>
+                          <th>Görev</th>
+                          <th>İşlem</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      <?php if ($result->num_rows > 0): ?>
+                        <?php while($row = $result->fetch_assoc()): ?>
+                        <tr>
+                          <td><?php echo $row['PersonelID']; ?></td>
+                          <td><?php echo $row['Sicil']; ?></td>
+                          <td><?php echo $row['Ad']; ?></td>
+                          <td><?php echo $row['Soyad']; ?></td>
+                          <td><?php echo $row['Departman']; ?></td>
+                          <td><?php echo $row['Gorev']; ?></td>
+                          <td>
+                            <a href="?sil=<?php echo $row['PersonelID']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')">Sil</a>
+                            <a href="?duzenle=<?php echo $row['PersonelID']; ?>" class="btn btn-warning btn-sm">Düzenle</a>
+                          </td>
+                        </tr>
+                        <?php endwhile; ?>
+                      <?php else: ?>
+                        <tr><td colspan="7">Sonuç bulunamadı.</td></tr>
+                      <?php endif; ?>
+                      </tbody>
+                    </table>
+
+                    <!-- Güncelleme Formu -->
+                    <?php
+                    if(isset($_GET['duzenle'])){
+                      $id = (int)$_GET['duzenle'];
+                      $sql = "SELECT * FROM Personel WHERE PersonelID=$id";
+                      $result2 = $conn->query($sql);
+                      if ($result2->num_rows == 1) {
+                          $row = $result2->fetch_assoc();
+                    ?>
+                    <hr>
+                    <h3>Personel Güncelle</h3>
+                    <form method="POST" class="mb-4">
+                      <input type="hidden" name="id" value="<?php echo $row['PersonelID']; ?>">
+                      <div class="form-group">
+                        <label>Sicil:</label>
+                        <input type="text" name="sicil" class="form-control" value="<?php echo htmlspecialchars($row['Sicil']); ?>" required>
+                      </div>
+                      <div class="form-group">
+                        <label>Ad:</label>
+                        <input type="text" name="ad" class="form-control" value="<?php echo htmlspecialchars($row['Ad']); ?>" required>
+                      </div>
+                      <div class="form-group">
+                        <label>Soyad:</label>
+                        <input type="text" name="soyad" class="form-control" value="<?php echo htmlspecialchars($row['Soyad']); ?>" required>
+                      </div>
+                      <div class="form-group">
+                        <label>Departman:</label>
+                        <input type="text" name="departman" class="form-control" value="<?php echo htmlspecialchars($row['Departman']); ?>">
+                      </div>
+                      <div class="form-group">
+                        <label>Görev:</label>
+                        <input type="text" name="gorev" class="form-control" value="<?php echo htmlspecialchars($row['Gorev']); ?>">
+                      </div>
+                      <button type="submit" name="guncelle" class="btn btn-primary mt-2">Güncelle</button>
+                    </form>
+                    <?php
+                      }
+                    }
+                    ?>
+
+                </div> <!-- /.container-fluid -->
+
+            </div> <!-- End of Main Content -->
+
+            <?php include 'footer.php'; ?>
+
+        </div> <!-- End of Content Wrapper -->
+    </div> <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- JS Dosyaları -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="js/sb-admin-2.min.js"></script>
 </body>
 </html>
 

@@ -1,38 +1,28 @@
 <?php
 session_start();
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "zimmetdb";
+include 'baglanti.php';
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-  die("Bağlantı hatası: " . $conn->connect_error);
-}
+$error = "";  // Hata mesajı için değişken tanımlandı
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $sicilNo = $_POST["sicilNo"];
-    $sifre = $_POST["sifre"];
+if (isset($_POST['giris'])) {
+    $sicilNo = $conn->real_escape_string($_POST['sicilNo']);
+    $sifre = $_POST['sifre'];
 
-    // Kullanıcıyı bul
-    $stmt = $conn->prepare("SELECT KullaniciID, Ad, Soyad, Sifre, Role FROM Kullanici WHERE SicilNo = ?");
-    $stmt->bind_param("s", $sicilNo);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $result = $conn->query("SELECT * FROM kullanici WHERE SicilNo='$sicilNo' LIMIT 1");
 
-    if ($result->num_rows == 1) {
-        $user = $result->fetch_assoc();
-        // Şifre kontrolü (hashlenmiş şifre kullanıyorsak)
-        if (password_verify($sifre, $user['Sifre'])) {
-            // Giriş başarılı, session başlat
-            $_SESSION['KullaniciID'] = $user['KullaniciID'];
-            $_SESSION['Ad'] = $user['Ad'];
-            $_SESSION['Soyad'] = $user['Soyad'];
-            $_SESSION['Role'] = $user['Role'];
+    if ($result && $result->num_rows == 1) {
+        $row = $result->fetch_assoc();
+
+        if (password_verify($sifre, $row['Sifre'])) {
+            // Giriş başarılı
+            $_SESSION['KullaniciID'] = $row['KullaniciID'];
+            $_SESSION['Role'] = $row['Role'];
+            $_SESSION['Ad'] = $row['Ad'];
+            $_SESSION['Soyad'] = $row['Soyad'];
             header("Location: anasayfa.php");
-            exit();
+            exit;
         } else {
-            $error = "Hatalı şifre.";
+            $error = "Şifre yanlış.";
         }
     } else {
         $error = "Kullanıcı bulunamadı.";
@@ -42,14 +32,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="tr">
-<head><meta charset="UTF-8"><title>Giriş Yap</title></head>
-<body>
-<h2>Giriş Yap</h2>
-<form method="post" action="">
-    Sicil No: <input type="text" name="sicilNo" required><br><br>
-    Şifre: <input type="password" name="sifre" required><br><br>
-    <input type="submit" value="Giriş Yap">
-</form>
-<?php if(isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Giriş Yap</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- SB Admin 2 CSS -->
+  <link href="css/sb-admin-2.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gradient-primary">
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-xl-5 col-lg-6 col-md-8">
+        <div class="card o-hidden border-0 shadow-lg my-5">
+          <div class="card-body p-5">
+            <div class="text-center">
+              <h1 class="h4 text-gray-900 mb-4">Giriş Yap</h1>
+            </div>
+
+            <?php if($error): ?>
+            <div class="alert alert-danger" role="alert">
+              <?php echo htmlspecialchars($error); ?>
+            </div>
+            <?php endif; ?>
+
+            <form method="post" action="">
+              <div class="form-group">
+                <input type="text" name="sicilNo" class="form-control form-control-user" placeholder="Sicil No" required>
+              </div>
+              <div class="form-group">
+                <input type="password" name="sifre" class="form-control form-control-user" placeholder="Şifre" required>
+              </div>
+              <button type="submit" name="giris" class="btn btn-primary btn-user btn-block">
+                Giriş Yap
+              </button>
+            </form>
+
+            <hr>
+            <div class="text-center">
+              <a class="small" href="register.php">Hesabınız yok mu? Kayıt Ol</a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- jQuery -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <!-- Bootstrap Bundle -->
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- SB Admin 2 JS -->
+  <script src="js/sb-admin-2.min.js"></script>
+
 </body>
 </html>
