@@ -16,8 +16,8 @@
                 <i class="fas fa-bell fa-fw"></i>
                 <!-- Bildirim sayısı -->
                 <span class="badge badge-danger badge-counter" 
-                      style="font-size: 1.2rem; top: -8px; right: -6px; position: absolute; padding: 0 6px;">
-                    3+
+                      style="font-size: 1.2rem; top:1px position: absolute; padding: 2px 4px;">
+                    +1
                 </span>
             </a>
             <!-- Dropdown - Bildirimler -->

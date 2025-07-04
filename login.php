@@ -72,11 +72,6 @@ if (isset($_POST['giris'])) {
               </button>
             </form>
 
-            <hr>
-            <div class="text-center">
-              <a class="small" href="register.php">Hesabınız yok mu? Kayıt Ol</a>
-            </div>
-
           </div>
         </div>
       </div>

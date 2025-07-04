@@ -50,8 +50,35 @@
         </a>
     </li>
 
+
     <hr class="sidebar-divider d-none d-md-block" />
 
+        <div class="sidebar-heading">Stok İşlemleri</div>
+
+    <li class="nav-item">
+  <a class="nav-link" href="stoklar.php">
+    <i class="fas fa-boxes"></i>
+    <span>Stoklar</span>
+  </a>
+    </li>
+
+    <hr class="sidebar-divider d-none d-md-block" />
+
+        <div class="sidebar-heading">Yönetim</div>
+
+    <li class="nav-item">
+    <a class="nav-link" href="kullanicilar.php">
+        <i class="fas fa-user"></i>
+        <span>Kullanıcılar</span>
+    </a>
+    </li>
+
+        <li class="nav-item">
+    <a class="nav-link" href="rol_yonetimi.php">
+        <i class="fas fa-user"></i>
+        <span>Rol Yönetimi</span>
+    </a>
+    </li>
     <!-- Logout -->
     <li class="nav-item">
         <a class="nav-link" href="logout.php">
