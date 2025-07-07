@@ -8,9 +8,9 @@ if (!isset($_SESSION['KullaniciID'])) {
     exit;
 }
 
-// Yetki kontrolü
+// Yetki kontrolü (sadece admin)
 if ($_SESSION['Role'] != 'admin') {
-    echo "Bu sayfaya erişim yetkiniz yok.";
+    header("Location: access_denied.php");
     exit;
 }
 
@@ -115,7 +115,7 @@ if(isset($_POST['guncelle'])){
                         </div>
                     </form>
 
-                    <!-- Ekleme ve Güncelleme Formları -->
+                    <!-- Ekleme / Güncelleme Formu -->
                     <?php
                     if(isset($_GET['duzenle'])){
                       $id = $conn->real_escape_string($_GET['duzenle']);
@@ -188,7 +188,7 @@ if(isset($_POST['guncelle'])){
                     </div>
                     <?php } ?>
 
-                    <!-- Eşya Listesi -->
+                    <!-- Listeleme -->
                     <div class="card shadow">
                       <div class="card-header py-3">
                         <h5 class="m-0 font-weight-bold text-primary">Eşya Listesi</h5>
@@ -213,12 +213,8 @@ if(isset($_POST['guncelle'])){
                                 <td><?php echo htmlspecialchars($row['SeriNo']); ?></td>
                                 <td><?php echo htmlspecialchars($row['Ozellik']); ?></td>
                                 <td>
-                                  <a href="?sil=<?php echo urlencode($row['EsyaID']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')">
-                                    <i class="fas fa-trash"></i> Sil
-                                  </a>
-                                  <a href="?duzenle=<?php echo urlencode($row['EsyaID']); ?>" class="btn btn-warning btn-sm">
-                                    <i class="fas fa-edit"></i> Düzenle
-                                  </a>
+                                  <a href="?duzenle=<?php echo urlencode($row['EsyaID']); ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Düzenle</a>
+                                  <a href="?sil=<?php echo urlencode($row['EsyaID']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')"><i class="fas fa-trash"></i> Sil</a>
                                 </td>
                               </tr>
                               <?php endwhile; ?>
@@ -236,11 +232,6 @@ if(isset($_POST['guncelle'])){
             <?php include 'footer.php'; ?>
         </div> <!-- End of Content Wrapper -->
     </div> <!-- End of Page Wrapper -->
-
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
 
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>

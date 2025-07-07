@@ -6,6 +6,11 @@ if (!isset($_SESSION['KullaniciID'])) {
     header("Location: login.php");
     exit;
 }
+// Yetki kontrolü (YENİ: access_denied.php yönlendirmesi)
+if ($_SESSION['Role'] != 'admin') {
+    header("Location: access_denied.php"); // Burada sayfanın adını kendi dosya adına göre ayarlayabilirsin
+    exit;
+}
 
 // Esya listesini al (stok eklerken seçim için)
 $esya_sorgu = "SELECT * FROM Esya ORDER BY MarkaModel ASC";

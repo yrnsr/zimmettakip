@@ -6,7 +6,11 @@ if (!isset($_SESSION['KullaniciID'])) {
     header("Location: login.php");
     exit;
 }
-
+// Yetki kontrolü (YENİ: access_denied.php yönlendirmesi)
+if ($_SESSION['Role'] != 'admin') {
+    header("Location: access_denied.php"); // Burada sayfanın adını kendi dosya adına göre ayarlayabilirsin
+    exit;
+}
 $stok_id = isset($_GET['stok_id']) ? (int)$_GET['stok_id'] : 0;
 
 if ($stok_id == 0) {

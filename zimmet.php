@@ -1,5 +1,6 @@
 <?php
 include 'kontrol.php';
+require 'vendor/autoload.php';
 
 girisKontrolu();
 rolKontrolu(['admin', 'user']);
@@ -14,29 +15,29 @@ if ($conn->connect_error) {
   die("Bağlantı hatası: " . $conn->connect_error);
 }
 
-// ARAMA DEĞİŞKENİ
+// Kullanıcı rolünü sessiondan al
+$role = $_SESSION['Role'];
+$adminMi = ($role == 'admin');
+
+// ARAMA
 $arama = "";
 if (isset($_GET["arama"])) {
   $arama = $conn->real_escape_string($_GET["arama"]);
 }
 
-// Düzenleme için var olan kaydın bilgilerini alma
+// Düzenleme için kayıt bilgileri
 $editZimmet = null;
-if (isset($_GET['duzenle'])) {
-    $duzenleID = (int)$_GET['duzenle'];
-    $sql_edit = "SELECT z.*, p.Ad AS PersonelAd, p.Soyad AS PersonelSoyad, e.MarkaModel AS EsyaMarkaModel
-                 FROM zimmet z
-                 JOIN Personel p ON z.PersonelID = p.PersonelID
-                 JOIN Esya e ON z.EsyaID = e.EsyaID
-                 WHERE ZimmetID = $duzenleID";
-    $res_edit = $conn->query($sql_edit);
-    if ($res_edit && $res_edit->num_rows === 1) {
-        $editZimmet = $res_edit->fetch_assoc();
-    }
+if (isset($_GET['duzenle']) && $adminMi) {
+  $duzenleID = (int)$_GET['duzenle'];
+  $sql_edit = "SELECT * FROM zimmet WHERE ZimmetID = $duzenleID";
+  $res_edit = $conn->query($sql_edit);
+  if ($res_edit && $res_edit->num_rows === 1) {
+    $editZimmet = $res_edit->fetch_assoc();
+  }
 }
 
 // EKLEME
-if (isset($_POST["ekle"])) {
+if (isset($_POST["ekle"]) && $adminMi) {
   $personelID = (int)$_POST["personelID"];
   $esyaID = (int)$_POST["esyaID"];
   $zimmetTarihi = $conn->real_escape_string($_POST["zimmetTarihi"]);
@@ -51,7 +52,7 @@ if (isset($_POST["ekle"])) {
 }
 
 // GÜNCELLEME
-if (isset($_POST["guncelle"])) {
+if (isset($_POST["guncelle"]) && $adminMi) {
   $id = (int)$_POST["zimmetID"];
   $personelID = (int)$_POST["personelID"];
   $esyaID = (int)$_POST["esyaID"];
@@ -68,7 +69,7 @@ if (isset($_POST["guncelle"])) {
 }
 
 // SİLME
-if (isset($_GET["sil"])) {
+if (isset($_GET["sil"]) && $adminMi) {
   $id = (int)$_GET["sil"];
   $sql = "DELETE FROM zimmet WHERE ZimmetID=$id";
   $conn->query($sql);
@@ -89,34 +90,19 @@ if (!empty($arama)) {
 
 $result = $conn->query($sql);
 
+// Personel ve Esya listeleri (Form dropdown için)
+$personeller = $conn->query("SELECT PersonelID, Ad, Soyad FROM Personel");
+$esyalar = $conn->query("SELECT EsyaID, MarkaModel FROM Esya");
 ?>
 
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Zimmet Yönetimi</title>
-<link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
-<link href="css/sb-admin-2.min.css" rel="stylesheet" />
-<style>
-  .autocomplete-suggestions {
-    border: 1px solid #ccc;
-    max-height: 150px;
-    overflow-y: auto;
-    background: #fff;
-    position: absolute;
-    z-index: 1000;
-    width: 400px;
-  }
-  .autocomplete-suggestion {
-    padding: 5px;
-    cursor: pointer;
-  }
-  .autocomplete-suggestion:hover {
-    background: #ddd;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zimmet Yönetimi</title>
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="css/sb-admin-2.min.css" rel="stylesheet" />
 </head>
 <body id="page-top">
 <div id="wrapper">
@@ -126,19 +112,16 @@ $result = $conn->query($sql);
     <?php include 'topbar.php'; ?>
 
     <div class="container-fluid">
-      <h2 class="mb-4">Zimmet İşlemleri</h2>
+      <h2 class="mb-4">Zimmet İşlemleri (<?php echo strtoupper($role); ?>)</h2>
 
       <!-- Arama Formu -->
       <form method="get" action="" class="form-inline mb-4">
-        <div class="input-group" style="max-width: 400px;">
-          <input type="text" name="arama" placeholder="Zimmet ara..." value="<?php echo htmlspecialchars($arama); ?>" class="form-control">
-          <div class="input-group-append">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Ara</button>
-          </div>
-        </div>
+        <input type="text" name="arama" placeholder="Zimmet ara..." value="<?php echo htmlspecialchars($arama); ?>" class="form-control mr-2">
+        <button type="submit" class="btn btn-primary">Ara</button>
       </form>
 
-      <!-- Ekleme / Güncelleme Formu -->
+      <!-- Ekleme / Güncelleme Formu sadece admin için -->
+      <?php if($adminMi): ?>
       <div class="card shadow mb-4">
         <div class="card-header py-3">
           <h5 class="m-0 font-weight-bold text-<?php echo $editZimmet ? 'warning' : 'success'; ?>">
@@ -146,55 +129,56 @@ $result = $conn->query($sql);
           </h5>
         </div>
         <div class="card-body">
-          <form method="post" action="" autocomplete="off" class="row g-3">
-            <input type="hidden" name="zimmetID" value="<?php echo $editZimmet ? $editZimmet['ZimmetID'] : ''; ?>">
-
-            <div class="col-md-6 position-relative">
-              <label for="personelInput" class="form-label">Personel</label>
-              <input type="text" id="personelInput" placeholder="Personel ara..." class="form-control" style="width: 100%;"
-                value="<?php echo $editZimmet ? htmlspecialchars($editZimmet['PersonelAd'] . ' ' . $editZimmet['PersonelSoyad']) : ''; ?>" required>
-              <input type="hidden" name="personelID" id="personelID" value="<?php echo $editZimmet ? $editZimmet['PersonelID'] : ''; ?>" required>
-              <div id="personelSuggestions" class="autocomplete-suggestions" style="display:none; max-width: 100%;"></div>
+          <form method="post">
+            <?php if($editZimmet): ?>
+              <input type="hidden" name="zimmetID" value="<?php echo htmlspecialchars($editZimmet['ZimmetID']); ?>">
+            <?php endif; ?>
+            <div class="form-group">
+              <label>Personel</label>
+              <select name="personelID" class="form-control" required>
+                <option value="">Seçiniz</option>
+                <?php while($p = $personeller->fetch_assoc()): ?>
+                  <option value="<?php echo $p['PersonelID']; ?>"
+                    <?php if($editZimmet && $editZimmet['PersonelID']==$p['PersonelID']) echo 'selected'; ?>>
+                    <?php echo htmlspecialchars($p['Ad']." ".$p['Soyad']); ?>
+                  </option>
+                <?php endwhile; ?>
+              </select>
             </div>
-
-            <div class="col-md-6 position-relative">
-              <label for="esyaInput" class="form-label">Eşya</label>
-              <input type="text" id="esyaInput" placeholder="Eşya ara..." class="form-control" style="width: 100%;"
-                value="<?php echo $editZimmet ? htmlspecialchars($editZimmet['EsyaMarkaModel']) : ''; ?>" required>
-              <input type="hidden" name="esyaID" id="esyaID" value="<?php echo $editZimmet ? $editZimmet['EsyaID'] : ''; ?>" required>
-              <div id="esyaSuggestions" class="autocomplete-suggestions" style="display:none; max-width: 100%;"></div>
+            <div class="form-group">
+              <label>Eşya</label>
+              <select name="esyaID" class="form-control" required>
+                <option value="">Seçiniz</option>
+                <?php while($e = $esyalar->fetch_assoc()): ?>
+                  <option value="<?php echo $e['EsyaID']; ?>"
+                    <?php if($editZimmet && $editZimmet['EsyaID']==$e['EsyaID']) echo 'selected'; ?>>
+                    <?php echo htmlspecialchars($e['MarkaModel']); ?>
+                  </option>
+                <?php endwhile; ?>
+              </select>
             </div>
-
-            <div class="col-md-3">
-              <label for="zimmetTarihi" class="form-label">Zimmet Tarihi</label>
-              <input type="date" name="zimmetTarihi" id="zimmetTarihi" class="form-control" required
-                value="<?php echo $editZimmet ? $editZimmet['ZimmetTarihi'] : ''; ?>">
+            <div class="form-group">
+              <label>Zimmet Tarihi</label>
+              <input type="date" name="zimmetTarihi" class="form-control" required value="<?php echo htmlspecialchars($editZimmet['ZimmetTarihi'] ?? ''); ?>">
             </div>
-
-            <div class="col-md-3">
-              <label for="iadeTarihi" class="form-label">İade Tarihi</label>
-              <input type="date" name="iadeTarihi" id="iadeTarihi" class="form-control"
-                value="<?php echo $editZimmet ? $editZimmet['IadeTarihi'] : ''; ?>">
+            <div class="form-group">
+              <label>İade Tarihi</label>
+              <input type="date" name="iadeTarihi" class="form-control" value="<?php echo htmlspecialchars($editZimmet['IadeTarihi'] ?? ''); ?>">
             </div>
-
-            <div class="col-md-6">
-              <label for="aciklama" class="form-label">Açıklama</label>
-              <input type="text" name="aciklama" id="aciklama" class="form-control"
-                value="<?php echo $editZimmet ? htmlspecialchars($editZimmet['Aciklama']) : ''; ?>">
+            <div class="form-group">
+              <label>Açıklama</label>
+              <input type="text" name="aciklama" class="form-control" value="<?php echo htmlspecialchars($editZimmet['Aciklama'] ?? ''); ?>">
             </div>
-
-            <div class="col-12">
-              <?php if($editZimmet): ?>
-                <button type="submit" name="guncelle" class="btn btn-warning"><i class="fas fa-edit"></i> Güncelle</button>
-                <a href="zimmet.php" class="btn btn-secondary">İptal</a>
-              <?php else: ?>
-              <button type="submit" name="ekle" class="btn btn-success mt-3"><i class="fas fa-plus"></i> Ekle</button>
-
-              <?php endif; ?>
-            </div>
+            <button type="submit" name="<?php echo $editZimmet ? 'guncelle' : 'ekle'; ?>" class="btn btn-<?php echo $editZimmet ? 'warning' : 'success'; ?>">
+              <?php echo $editZimmet ? 'Güncelle' : 'Ekle'; ?>
+            </button>
+            <?php if($editZimmet): ?>
+              <a href="zimmet.php" class="btn btn-secondary">İptal</a>
+            <?php endif; ?>
           </form>
         </div>
       </div>
+      <?php endif; ?>
 
       <!-- Zimmet Listesi -->
       <div class="card shadow">
@@ -211,7 +195,7 @@ $result = $conn->query($sql);
                 <th>Zimmet Tarihi</th>
                 <th>İade Tarihi</th>
                 <th>Açıklama</th>
-                <th>İşlem</th>
+                <?php if($adminMi): ?><th>İşlem</th><?php endif; ?>
               </tr>
             </thead>
             <tbody>
@@ -224,15 +208,18 @@ $result = $conn->query($sql);
                       <td>".htmlspecialchars($row['EsyaMarkaModel'])."</td>
                       <td>".htmlspecialchars($row['ZimmetTarihi'])."</td>
                       <td>".htmlspecialchars($row['IadeTarihi'] ?: '-')."</td>
-                      <td>".htmlspecialchars($row['Aciklama'])."</td>
-                      <td>
-                        <a href='?duzenle=".urlencode($row['ZimmetID'])."' class='btn btn-warning btn-sm'><i class='fas fa-edit'></i> Düzenle</a> 
-                        <a href='?sil=".urlencode($row['ZimmetID'])."' class='btn btn-danger btn-sm' onclick=\"return confirm('Silmek istediğinize emin misiniz?');\"><i class='fas fa-trash'></i> Sil</a>
-                      </td>
-                    </tr>";
+                      <td>".htmlspecialchars($row['Aciklama'] ?? '')."</td>";
+                    if ($adminMi) {
+                      echo "<td>
+                              <a href='?duzenle=".urlencode($row['ZimmetID'])."' class='btn btn-warning btn-sm'>Düzenle</a> 
+                              <a href='?sil=".urlencode($row['ZimmetID'])."' class='btn btn-danger btn-sm' onclick=\"return confirm('Silmek istediğinize emin misiniz?');\">Sil</a>
+                              <a href='zimmet_yazdir.php?id={$row['ZimmetID']}' class='btn btn-info btn-sm'>Yazdır</a>
+                            </td>";
+                    }
+                    echo "</tr>";
                   }
                 } else {
-                  echo "<tr><td colspan='7' class='text-center'>Sonuç bulunamadı.</td></tr>";
+                  echo "<tr><td colspan='".($adminMi ? '7' : '6')."' class='text-center'>Sonuç bulunamadı.</td></tr>";
                 }
               ?>
             </tbody>
@@ -242,77 +229,14 @@ $result = $conn->query($sql);
 
     </div> <!-- /.container-fluid -->
   </div> <!-- End of Main Content -->
-
   <?php include 'footer.php'; ?>
 </div> <!-- End of Content Wrapper -->
 </div> <!-- End of Page Wrapper -->
-
-<!-- Scroll to Top Button-->
-<a class="scroll-to-top rounded" href="#page-top">
-  <i class="fas fa-angle-up"></i>
-</a>
 
 <script src="vendor/jquery/jquery.min.js"></script>
 <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 <script src="js/sb-admin-2.min.js"></script>
-
-<script>
-// Basit autocomplete örneği
-function autocomplete(inputEl, hiddenInputEl, suggestionsEl, apiEndpoint) {
-  inputEl.addEventListener('input', function() {
-    const val = this.value.trim();
-    if (!val) {
-      suggestionsEl.style.display = 'none';
-      hiddenInputEl.value = '';
-      return;
-    }
-    fetch(apiEndpoint + '?q=' + encodeURIComponent(val))
-      .then(res => res.json())
-      .then(data => {
-        if(data.length){
-          suggestionsEl.innerHTML = data.map(item => 
-            `<div class="autocomplete-suggestion" data-id="${item.id}">${item.name}</div>`
-          ).join('');
-          suggestionsEl.style.display = 'block';
-        } else {
-          suggestionsEl.style.display = 'none';
-          hiddenInputEl.value = '';
-        }
-      });
-  });
-
-  suggestionsEl.addEventListener('click', function(e){
-    if(e.target && e.target.matches('.autocomplete-suggestion')){
-      inputEl.value = e.target.textContent;
-      hiddenInputEl.value = e.target.getAttribute('data-id');
-      suggestionsEl.style.display = 'none';
-    }
-  });
-
-  document.addEventListener('click', function(e){
-    if(e.target !== inputEl && e.target !== suggestionsEl){
-      suggestionsEl.style.display = 'none';
-    }
-  });
-}
-
-// Kullanıcılar için autocomplete (personel)
-autocomplete(
-  document.getElementById('personelInput'),
-  document.getElementById('personelID'),
-  document.getElementById('personelSuggestions'),
-  'autocomplete_personel.php'
-);
-
-// Eşyalar için autocomplete
-autocomplete(
-  document.getElementById('esyaInput'),
-  document.getElementById('esyaID'),
-  document.getElementById('esyaSuggestions'),
-  'autocomplete_esya.php'
-);
-</script>
 </body>
 </html>
 

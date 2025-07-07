@@ -8,9 +8,9 @@ if (!isset($_SESSION['KullaniciID'])) {
     exit;
 }
 
-// Yetki kontrolü – sadece admin erişebilir
+// Yetki kontrolü (YENİ: access_denied.php yönlendirmesi)
 if ($_SESSION['Role'] != 'admin') {
-    echo "Bu sayfaya erişim yetkiniz yok.";
+    header("Location: access_denied.php"); // Burada sayfanın adını kendi dosya adına göre ayarlayabilirsin
     exit;
 }
 

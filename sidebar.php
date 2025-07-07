@@ -79,6 +79,7 @@
         <span>Rol Yönetimi</span>
     </a>
     </li>
+        <hr class="sidebar-divider d-none d-md-block" />
     <!-- Logout -->
     <li class="nav-item">
         <a class="nav-link" href="logout.php">

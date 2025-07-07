@@ -3,9 +3,14 @@ session_start();
 include 'baglanti.php';
 
 // Giriş ve admin kontrolü
-if (!isset($_SESSION['KullaniciID']) || $_SESSION['Role'] != 'admin') {
-  header("Location: login.php");
-  exit;
+if (!isset($_SESSION['KullaniciID'])) {
+    header("Location: login.php");
+    exit;
+}
+// Yetki kontrolü (YENİ: access_denied.php yönlendirmesi)
+if ($_SESSION['Role'] != 'admin') {
+    header("Location: access_denied.php"); // Burada sayfanın adını kendi dosya adına göre ayarlayabilirsin
+    exit;
 }
 
 // RoleID kontrolü

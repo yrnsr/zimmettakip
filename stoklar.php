@@ -8,6 +8,12 @@ if (!isset($_SESSION['KullaniciID'])) {
     exit;
 }
 
+// Yetki kontrolü (YENİ: access_denied.php yönlendirmesi)
+if ($_SESSION['Role'] != 'admin') {
+    header("Location: access_denied.php"); // Burada sayfanın adını kendi dosya adına göre ayarlayabilirsin
+    exit;
+}
+
 $sql = "SELECT s.StokID, s.Miktar, e.MarkaModel, e.SeriNo, e.Ozellik 
         FROM Stoklar s 
         INNER JOIN Esya e ON s.EsyaID = e.EsyaID";

@@ -8,13 +8,22 @@ if (!isset($_SESSION['KullaniciID'])) {
     exit;
 }
 
-// Yetki kontrolü
-if ($_SESSION['Role'] != 'admin') {
+// Rol kontrolü
+if (!isset($_SESSION['Role'])) {
+    echo "Rol tanımlı değil. Giriş yapın.";
+    exit;
+}
+
+$role = $_SESSION['Role'];
+$adminMi = ($role == 'admin');
+
+// Admin ve user dışındakiler erişemesin
+if ($role != 'admin' && $role != 'user') {
     echo "Bu sayfaya erişim yetkiniz yok.";
     exit;
 }
 
-// Arama sorgusu güvenli hale getirildi
+// Arama sorgusu
 $arama = "";
 if(isset($_GET['arama'])){
     $arama = $conn->real_escape_string($_GET['arama']);
@@ -29,8 +38,13 @@ if(isset($_GET['arama'])){
 }
 $result = $conn->query($query);
 
-// Ekleme işlemi
+// Ekleme işlemi (sadece admin)
 if(isset($_POST['ekle'])){
+  if(!$adminMi){
+    echo "Bu işlemi yapmaya yetkiniz yok.";
+    exit;
+  }
+
   $sicil = $conn->real_escape_string($_POST['sicil']);
   $ad = $conn->real_escape_string($_POST['ad']);
   $soyad = $conn->real_escape_string($_POST['soyad']);
@@ -48,8 +62,13 @@ if(isset($_POST['ekle'])){
   }
 }
 
-// Silme işlemi
+// Silme işlemi (sadece admin)
 if(isset($_GET['sil'])){
+  if(!$adminMi){
+    echo "Bu işlemi yapmaya yetkiniz yok.";
+    exit;
+  }
+
   $id = (int)$_GET['sil'];
   $sql = "DELETE FROM Personel WHERE PersonelID=$id";
   if ($conn->query($sql) === TRUE) {
@@ -60,8 +79,13 @@ if(isset($_GET['sil'])){
   }
 }
 
-// Güncelleme işlemi
+// Güncelleme işlemi (sadece admin)
 if(isset($_POST['guncelle'])){
+  if(!$adminMi){
+    echo "Bu işlemi yapmaya yetkiniz yok.";
+    exit;
+  }
+
   $id = (int)$_POST['id'];
   $sicil = $conn->real_escape_string($_POST['sicil']);
   $ad = $conn->real_escape_string($_POST['ad']);
@@ -106,7 +130,7 @@ if(isset($_POST['guncelle'])){
                 <?php include 'topbar.php'; ?>
 
                 <div class="container-fluid">
-                    <h2>Personel İşlemleri (Admin)</h2>
+                    <h2>Personel İşlemleri (<?php echo strtoupper($role); ?>)</h2>
 
                     <!-- Arama Formu -->
                     <form method="GET" action="" class="form-inline mb-3">
@@ -114,7 +138,8 @@ if(isset($_POST['guncelle'])){
                         <button type="submit" class="btn btn-primary">Ara</button>
                     </form>
 
-                    <!-- Ekleme Formu -->
+                    <!-- Ekleme Formu sadece admin için -->
+                    <?php if ($adminMi): ?>
                     <h3>Personel Ekle</h3>
                     <form method="POST" class="mb-4">
                       <div class="form-group">
@@ -139,6 +164,7 @@ if(isset($_POST['guncelle'])){
                       </div>
                       <button type="submit" name="ekle" class="btn btn-success mt-2">Ekle</button>
                     </form>
+                    <?php endif; ?>
 
                     <!-- Personel Listesi -->
                     <h3>Personel Listesi</h3>
@@ -165,8 +191,12 @@ if(isset($_POST['guncelle'])){
                           <td><?php echo $row['Departman']; ?></td>
                           <td><?php echo $row['Gorev']; ?></td>
                           <td>
-                            <a href="?sil=<?php echo $row['PersonelID']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')">Sil</a>
-                            <a href="?duzenle=<?php echo $row['PersonelID']; ?>" class="btn btn-warning btn-sm">Düzenle</a>
+                            <?php if ($adminMi): ?>
+                              <a href="?sil=<?php echo $row['PersonelID']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Silmek istediğinize emin misiniz?')">Sil</a>
+                              <a href="?duzenle=<?php echo $row['PersonelID']; ?>" class="btn btn-warning btn-sm">Düzenle</a>
+                            <?php else: ?>
+                              <span class="text-muted">Yetki yok</span>
+                            <?php endif; ?>
                           </td>
                         </tr>
                         <?php endwhile; ?>
@@ -176,9 +206,9 @@ if(isset($_POST['guncelle'])){
                       </tbody>
                     </table>
 
-                    <!-- Güncelleme Formu -->
+                    <!-- Güncelleme Formu sadece admin için -->
                     <?php
-                    if(isset($_GET['duzenle'])){
+                    if($adminMi && isset($_GET['duzenle'])){
                       $id = (int)$_GET['duzenle'];
                       $sql = "SELECT * FROM Personel WHERE PersonelID=$id";
                       $result2 = $conn->query($sql);
