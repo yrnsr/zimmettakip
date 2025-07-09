@@ -14,7 +14,7 @@ if ($_SESSION['Role'] != 'admin') {
     exit;
 }
 
-$sql = "SELECT s.StokID, s.Miktar, e.MarkaModel, e.SeriNo, e.Ozellik 
+$sql = "SELECT s.StokID, s.Miktar, e.Marka, e.Model, e.SeriNo, e.Ozellik 
         FROM Stoklar s 
         INNER JOIN Esya e ON s.EsyaID = e.EsyaID";
 $result = $conn->query($sql);
@@ -45,7 +45,8 @@ $result = $conn->query($sql);
                     <thead class="thead-dark">
                     <tr>
                         <th>Stok ID</th>
-                        <th>Marka/Model</th>
+                        <th>Marka</th>
+                        <th>Model</th>
                         <th>Seri No</th>
                         <th>Özellik</th>
                         <th>Miktar</th>
@@ -57,7 +58,8 @@ $result = $conn->query($sql);
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
                                 <td><?= $row['StokID'] ?></td>
-                                <td><?= htmlspecialchars($row['MarkaModel']) ?></td>
+                                <td><?= htmlspecialchars($row['Marka']) ?></td>
+                                <td><?= htmlspecialchars($row['Model']) ?></td>
                                 <td><?= htmlspecialchars($row['SeriNo']) ?></td>
                                 <td><?= htmlspecialchars($row['Ozellik']) ?></td>
                                 <td><?= $row['Miktar'] ?></td>

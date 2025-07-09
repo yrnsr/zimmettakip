@@ -78,21 +78,21 @@ if (isset($_GET["sil"]) && $adminMi) {
 }
 
 // LİSTELEME + ARAMA
-$sql = "SELECT z.*, p.Ad AS PersonelAd, p.Soyad AS PersonelSoyad, e.MarkaModel AS EsyaMarkaModel
+$sql = "SELECT z.*, p.Ad AS PersonelAd, p.Soyad AS PersonelSoyad, e.Marka, e.Model AS EsyaMarkaModel
         FROM zimmet z
         JOIN Personel p ON z.PersonelID = p.PersonelID
         JOIN Esya e ON z.EsyaID = e.EsyaID";
 
 if (!empty($arama)) {
   $sql .= " WHERE p.Ad LIKE '%$arama%' OR p.Soyad LIKE '%$arama%' OR 
-            e.MarkaModel LIKE '%$arama%' OR z.ZimmetTarihi LIKE '%$arama%' OR z.IadeTarihi LIKE '%$arama%' OR z.Aciklama LIKE '%$arama%'";
+            e.Marka LIKE '%$arama%' OR e.Model LIKE '%$arama%' OR z.ZimmetTarihi LIKE '%$arama%' OR z.IadeTarihi LIKE '%$arama%' OR z.Aciklama LIKE '%$arama%'";
 }
 
 $result = $conn->query($sql);
 
 // Personel ve Esya listeleri (Form dropdown için)
 $personeller = $conn->query("SELECT PersonelID, Ad, Soyad FROM Personel");
-$esyalar = $conn->query("SELECT EsyaID, MarkaModel FROM Esya");
+$esyalar = $conn->query("SELECT EsyaID, Marka, Model FROM Esya");
 ?>
 
 <!DOCTYPE html>

@@ -19,7 +19,7 @@ if (!isset($_GET['stok_id'])) {
 
 $stok_id = (int)$_GET['stok_id'];
 
-$sqlStok = "SELECT s.StokID, s.Miktar, e.MarkaModel FROM Stoklar s INNER JOIN Esya e ON s.EsyaID = e.EsyaID WHERE s.StokID = $stok_id";
+$sqlStok = "SELECT s.StokID, s.Miktar, e.Marka, e.Model FROM Stoklar s INNER JOIN Esya e ON s.EsyaID = e.EsyaID WHERE s.StokID = $stok_id";
 $stokResult = $conn->query($sqlStok);
 if (!$stokResult || $stokResult->num_rows == 0) {
     echo "Stok bulunamadı.";
@@ -50,7 +50,7 @@ $hareketResult = $conn->query($sqlHareket);
             <?php include 'topbar.php'; ?>
 
             <div class="container-fluid">
-                <h2>Stok Hareketleri: <?= htmlspecialchars($stok['MarkaModel']) ?> (StokID: <?= $stok['StokID'] ?>)</h2>
+                <h2>Stok Hareketleri: <?= htmlspecialchars($stok['Marka']) ?> (StokID: <?= $stok['StokID'] ?>)</h2>
                 <p>Mevcut Miktar: <?= $stok['Miktar'] ?></p>
                 <a href="stoklar.php" class="btn btn-secondary mb-3">Geri Dön</a>
 

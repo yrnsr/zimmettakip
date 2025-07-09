@@ -1,7 +1,7 @@
 <?php
-include 'kontrol.php';  // burada zaten session_start() var
+include 'kontrol.php';
 
-girisKontrolu(); // Giriş yapılmamışsa login.php'ye yönlendirir
+girisKontrolu();
 
 $kullaniciAdi = $_SESSION['KullaniciAdi'] ?? '';
 ?>
@@ -27,24 +27,80 @@ $kullaniciAdi = $_SESSION['KullaniciAdi'] ?? '';
         <?php include 'topbar.php'; ?>
 
         <div class="container-fluid">
-          <h1 class="h3 mb-4 text-gray-800">Hoşgeldin, <?php echo htmlspecialchars($kullaniciAdi); ?>!</h1>
 
-          <p>Bu sistemde aşağıdaki menüden işlemlerinizi yapabilirsiniz.</p>
+          <!-- Sayfa Başlığı -->
+          <h1 class="h3 mb-4 text-gray-800">Hoşgeldiniz, <?php echo htmlspecialchars($kullaniciAdi); ?>!</h1>
 
-          <div class="list-group" style="max-width: 400px;">
-            <a href="personel.php" class="list-group-item list-group-item-action">
-              <i class="fas fa-users"></i> Personel Yönetimi
-            </a>
-            <a href="esya.php" class="list-group-item list-group-item-action">
-              <i class="fas fa-box"></i> Eşya Yönetimi
-            </a>
-            <a href="zimmet.php" class="list-group-item list-group-item-action">
-              <i class="fas fa-hand-holding"></i> Zimmet Yönetimi
-            </a>
+          <div class="row">
+
+            <!-- Hoşgeldin Kartı -->
+            <div class="col-lg-12">
+              <div class="card shadow mb-4">
+                <div class="card-body">
+                  <h5 class="card-title">Zimmet Takip Sistemine Hoşgeldiniz</h5>
+                  <p class="card-text">Bu sistem üzerinden personel, eşya ve zimmet işlemlerinizi kolayca yönetebilirsiniz.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Personel Yönetimi -->
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <a href="personel.php" class="card-body text-decoration-none text-dark">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Personel Yönetimi</div>
+                      <div class="h5 mb-0 font-weight-bold">Personel İşlemleri</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Eşya Yönetimi -->
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card border-left-success shadow h-100 py-2">
+                <a href="esya.php" class="card-body text-decoration-none text-dark">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Eşya Yönetimi</div>
+                      <div class="h5 mb-0 font-weight-bold">Eşya İşlemleri</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-box fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Zimmet Yönetimi -->
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card border-left-warning shadow h-100 py-2">
+                <a href="zimmet.php" class="card-body text-decoration-none text-dark">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Zimmet Yönetimi</div>
+                      <div class="h5 mb-0 font-weight-bold">Zimmet İşlemleri</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
           </div>
 
-          <hr>
-          <a href="logout.php" class="btn btn-danger mt-3"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
+          <!-- Çıkış Yap Butonu -->
+          <div class="text-center">
+            <a href="logout.php" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Çıkış Yap</a>
+          </div>
+
         </div>
 
       </div>

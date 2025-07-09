@@ -75,7 +75,7 @@ if(isset($_POST['stok_ekle'])) {
                         <select name="esya_id" class="form-control" required>
                             <option value="">-- Seçiniz --</option>
                             <?php while($esya = $esya_sonuc->fetch_assoc()): ?>
-                                <option value="<?= $esya['EsyaID'] ?>"><?= htmlspecialchars($esya['MarkaModel']) ?> (<?= htmlspecialchars($esya['SeriNo']) ?>)</option>
+                                <option value="<?= $esya['EsyaID'] ?>"><?= htmlspecialchars($esya['Marka']) ?> (<?= htmlspecialchars($esya['SeriNo']) ?>)</option>
                             <?php endwhile; ?>
                         </select>
                     </div>

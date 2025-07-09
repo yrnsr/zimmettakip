@@ -1,43 +1,94 @@
 <?php
+ob_start(); // Output Buffer başlat
+
 require 'vendor/autoload.php';
 include 'baglanti.php';
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
-// Session kontrolü ekle (isteğe bağlı)
 session_start();
 
-// GET ile zimmetID al
+if (!isset($_SESSION['KullaniciID'])) {
+    header("Location: login.php");
+    exit;
+}
+
 if (!isset($_GET['id'])) {
     die("Geçersiz istek.");
 }
 
 $zimmetID = (int)$_GET['id'];
 
-// Veritabanından ilgili zimmet kaydını çek
-$sql = "SELECT z.*, p.Ad AS PersonelAd, p.Soyad AS PersonelSoyad, e.MarkaModel AS EsyaMarkaModel
+$sql = "SELECT z.*, p.Ad AS PersonelAd, p.Soyad AS PersonelSoyad, p.Sicil, p.Gorev, p.Departman,
+               e.Marka, e.Model, e.EsyaAdi, e.SeriNo, e.Ozellik
         FROM zimmet z
         JOIN Personel p ON z.PersonelID = p.PersonelID
         JOIN Esya e ON z.EsyaID = e.EsyaID
         WHERE ZimmetID = $zimmetID";
+
 $result = $conn->query($sql);
+
 if (!$result || $result->num_rows != 1) {
     die("Kayıt bulunamadı.");
 }
+
 $data = $result->fetch_assoc();
 
-// Excel şablonunu yükle
 $spreadsheet = IOFactory::load("Zimmet Tutanağı.xlsx");
 $sheet = $spreadsheet->getActiveSheet();
 
-// Hücrelere verileri yaz
-$sheet->setCellValue('B2', $data['PersonelAd'] . ' ' . $data['PersonelSoyad']);
-$sheet->setCellValue('B3', $data['EsyaMarkaModel']);
-$sheet->setCellValue('B4', $data['ZimmetTarihi']);
-$sheet->setCellValue('B5', $data['IadeTarihi']);
-$sheet->setCellValue('B6', $data['Aciklama']);
+$sheet->setCellValue('D7', $data['PersonelAd'] . ' ' . $data['PersonelSoyad']);
+$sheet->setCellValue('D6', $data['Sicil']);
+$sheet->setCellValue('D8', $data['Gorev']);
+$sheet->setCellValue('D9', $data['Departman']);
+$sheet->setCellValue('E18', $data['Marka']);
+$sheet->setCellValue('G18', $data['Model']);
+$sheet->setCellValue('A18', $data['SeriNo']);
+$sheet->setCellValue('B18', $data['EsyaAdi']);
+$sheet->setCellValue('I18', $data['Aciklama']);
+$sheet->setCellValue('H46', $data['PersonelAd'] . ' ' . $data['PersonelSoyad'] . ' ' . $data['Gorev']);
+$sheet->setCellValue('A34', $data['PersonelAd'] . ' ' . $data['PersonelSoyad']);
+$sheet->setCellValue('A35', $data['Gorev']);
 
-// Dosyayı çıktıya hazırla
+use PhpOffice\PhpSpreadsheet\RichText\RichText; // RichText ekle
+
+// ...
+
+$isimSoyisim = $data['PersonelAd'] . ' ' . $data['PersonelSoyad'];
+$tarih = date('d.m.Y');
+
+// RichText nesnesi oluştur
+$richText = new RichText();
+
+// İlk normal metin
+$normal1 = $richText->createTextRun("Aşağıda tanımı ve özellikleri belirtilen şirket demirbaşı, ");
+
+// Tarihi kalın yaz
+$tarihRun = $richText->createTextRun($tarih);
+$tarihRun->getFont()->setBold(true);
+
+// Devam metni
+$normal2 = $richText->createTextRun(" tarihinde, şirket çalışanı ");
+
+// İsim soyisim kalın yaz
+$isimRun = $richText->createTextRun($isimSoyisim);
+$isimRun->getFont()->setBold(true);
+
+// Son metin
+$normal3 = $richText->createTextRun("’a teslim edilmiştir.");
+
+// Hücreye ekle
+$sheet->getCell('A10')->setValue($richText);
+
+
+$isimSoyisim = $data['PersonelAd'] . ' ' . $data['PersonelSoyad'];
+$tarih = date('d.m.Y');
+$yazi = "Aşağıda tanımı ve özellikleri belirtilen şirket demirbaşı, $tarih tarihinde, şirket çalışanı $isimSoyisim'a teslim edilmiştir.";
+
+
+// Çıktı öncesi temizleme
+ob_clean();
+
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 header('Content-Disposition: attachment;filename="zimmet_tutanagi.xlsx"');
 header('Cache-Control: max-age=0');
