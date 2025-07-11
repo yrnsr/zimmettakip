@@ -30,7 +30,22 @@ function sayfa_erisim_kontrol($conn, $roleID, $sayfaAdi) {
 }
 
 /**
- * RoleID'yi RoleName'den çekmek için yardımcı fonksiyon (opsiyonel)
+ * RoleID'den RoleName çekmek için fonksiyon
+ * Kullanım:
+ * $roleName = getRoleName($conn, 1);
+ */
+function getRoleName($conn, $roleID) {
+    $sql = "SELECT RoleName FROM Roller WHERE RoleID = $roleID LIMIT 1";
+    $result = $conn->query($sql);
+    if ($result && $result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        return $row['RoleName'];
+    }
+    return null;
+}
+
+/**
+ * RoleName'den RoleID çekmek için fonksiyon
  * Kullanım:
  * $roleID = getRoleID($conn, 'admin');
  */
@@ -43,5 +58,26 @@ function getRoleID($conn, $roleName) {
         return $row['RoleID'];
     }
     return null;
+}
+
+/**
+ * Kullanıcıya ait tüm yetkileri çekme fonksiyonu
+ * Kullanım:
+ * $yetkiler = getUserPermissions($conn, $kullaniciID);
+ */
+function getUserPermissions($conn, $kullaniciID) {
+    $sql = "SELECT y.PermissionCode
+            FROM KullaniciRolleri kr
+            JOIN RolYetkileri ry ON kr.RoleID = ry.RoleID
+            JOIN Yetkiler y ON ry.YetkiID = y.YetkiID
+            WHERE kr.KullaniciID = $kullaniciID";
+    $result = $conn->query($sql);
+    $permissions = [];
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $permissions[] = $row['PermissionCode'];
+        }
+    }
+    return $permissions;
 }
 ?>

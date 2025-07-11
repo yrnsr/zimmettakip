@@ -1,9 +1,28 @@
 <?php
 include 'kontrol.php';
+include 'baglanti.php';
 
 girisKontrolu();
 
 $kullaniciAdi = $_SESSION['KullaniciAdi'] ?? '';
+
+// Personel sayısı
+$sql_personel = "SELECT COUNT(*) AS toplam_personel FROM personel";
+$result_personel = $conn->query($sql_personel);
+$row_personel = $result_personel->fetch_assoc();
+$personel_sayisi = $row_personel['toplam_personel'] ?? 0;
+
+// Eşya sayısı
+$sql_esya = "SELECT COUNT(*) AS toplam_esya FROM esya";
+$result_esya = $conn->query($sql_esya);
+$row_esya = $result_esya->fetch_assoc();
+$esya_sayisi = $row_esya['toplam_esya'] ?? 0;
+
+// Zimmet sayısı
+$sql_zimmet = "SELECT COUNT(*) AS toplam_zimmet FROM zimmet";
+$result_zimmet = $conn->query($sql_zimmet);
+$row_zimmet = $result_zimmet->fetch_assoc();
+$zimmet_sayisi = $row_zimmet['toplam_zimmet'] ?? 0;
 ?>
 
 <!DOCTYPE html>
@@ -33,7 +52,43 @@ $kullaniciAdi = $_SESSION['KullaniciAdi'] ?? '';
 
           <div class="row">
 
-            <!-- Hoşgeldin Kartı -->
+            <!-- Personel Sayısı Card -->
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card shadow h-100 py-4" style="background: linear-gradient(135deg, #36b9cc, #2c9faf); color: white;">
+                <div class="card-body text-center">
+                  <i class="fas fa-users fa-3x mb-3"></i>
+                  <h4 class="font-weight-bold">Personel Sayısı</h4>
+                  <h2 class="font-weight-bold"><?php echo $personel_sayisi; ?></h2>
+                </div>
+              </div>
+            </div>
+
+            <!-- Eşya Sayısı Card -->
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card shadow h-100 py-4" style="background: linear-gradient(135deg, #1cc88a, #17a673); color: white;">
+                <div class="card-body text-center">
+                  <i class="fas fa-box fa-3x mb-3"></i>
+                  <h4 class="font-weight-bold">Eşya Sayısı</h4>
+                  <h2 class="font-weight-bold"><?php echo $esya_sayisi; ?></h2>
+                </div>
+              </div>
+            </div>
+
+            <!-- Zimmet Sayısı Card -->
+            <div class="col-xl-4 col-md-6 mb-4">
+              <div class="card shadow h-100 py-4" style="background: linear-gradient(135deg, #f6c23e, #dda20a); color: white;">
+                <div class="card-body text-center">
+                  <i class="fas fa-clipboard-list fa-3x mb-3"></i>
+                  <h4 class="font-weight-bold">Zimmet Sayısı</h4>
+                  <h2 class="font-weight-bold"><?php echo $zimmet_sayisi; ?></h2>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Hoşgeldin Kartı -->
+          <div class="row">
             <div class="col-lg-12">
               <div class="card shadow mb-4">
                 <div class="card-body">
@@ -42,6 +97,10 @@ $kullaniciAdi = $_SESSION['KullaniciAdi'] ?? '';
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Yönetim Kartları -->
+          <div class="row">
 
             <!-- Personel Yönetimi -->
             <div class="col-xl-4 col-md-6 mb-4">

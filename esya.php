@@ -179,7 +179,7 @@
                       <td><?php echo htmlspecialchars($row['Marka']); ?></td>
                       <td><?php echo htmlspecialchars($row['Model']); ?></td>
                       <td><?php echo htmlspecialchars($row['SeriNo']); ?></td>
-                      <td><?php echo htmlspecialchars($row['Ozellik']); ?></td>
+                      <td><?php echo htmlspecialchars($row['Aciklama']); ?></td>
                       <?php if($role == 'admin'): ?>
                       <td>
                         <a href="?duzenle=<?php echo urlencode($row['EsyaID']); ?>" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Düzenle</a>

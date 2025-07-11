@@ -1,20 +1,16 @@
 <?php
 session_start();
 include 'baglanti.php';
+include 'kontrol.php';
 
-// Kullanıcı giriş kontrolü
-if (!isset($_SESSION['KullaniciID'])) {
-    header("Location: login.php");
-    exit;
-}
+// Giriş kontrolü
+girisKontrolu();
 
-// Yetki kontrolü (YENİ: access_denied.php yönlendirmesi)
-if ($_SESSION['Role'] != 'admin') {
-    header("Location: access_denied.php"); // Burada sayfanın adını kendi dosya adına göre ayarlayabilirsin
-    exit;
-}
+// Role kontrolü – sadece admin erişir
+adminKontrol();
 
-$sql = "SELECT s.StokID, s.Miktar, e.Marka, e.Model, e.SeriNo, e.Ozellik 
+// Stok ve eşya bilgilerini çek
+$sql = "SELECT s.StokID, s.Miktar, e.Marka, e.Model, e.SeriNo, e.Aciklama 
         FROM Stoklar s 
         INNER JOIN Esya e ON s.EsyaID = e.EsyaID";
 $result = $conn->query($sql);
@@ -61,7 +57,7 @@ $result = $conn->query($sql);
                                 <td><?= htmlspecialchars($row['Marka']) ?></td>
                                 <td><?= htmlspecialchars($row['Model']) ?></td>
                                 <td><?= htmlspecialchars($row['SeriNo']) ?></td>
-                                <td><?= htmlspecialchars($row['Ozellik']) ?></td>
+                                <td><?= htmlspecialchars($row['Aciklama']) ?></td>
                                 <td><?= $row['Miktar'] ?></td>
                                 <td>
                                     <a href="stokhareketleri.php?stok_id=<?= $row['StokID'] ?>" class="btn btn-info btn-sm">Hareketler</a>
@@ -70,7 +66,7 @@ $result = $conn->query($sql);
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <tr><td colspan="6">Stok bulunamadı.</td></tr>
+                        <tr><td colspan="7">Stok bulunamadı.</td></tr>
                     <?php endif; ?>
                     </tbody>
                 </table>

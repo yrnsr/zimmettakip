@@ -39,7 +39,7 @@ $result = $conn->query($sql);
     <div class="container-fluid">
       <h2>Kullanıcılar</h2>
 
-      <a href="kullaniciekle.php" class="btn btn-success mb-3">Kullanıcı Ekle</a>
+      <a href="kullanici_ekle.php" class="btn btn-success mb-3">Kullanıcı Ekle</a>
 
       <table class="table table-bordered table-striped">
         <thead class="thead-dark">
@@ -62,7 +62,7 @@ $result = $conn->query($sql);
               <td><?php echo $row['Ad']; ?></td>
               <td><?php echo $row['Soyad']; ?></td>
               <td><?php echo $row['Email']; ?></td>
-              <td><?php echo $row['Role']; ?></td>
+              <td><?php echo $row['RoleID']; ?></td>
               <td>
                 <a href="kullanicidetay.php?id=<?php echo $row['KullaniciID']; ?>" class="btn btn-info btn-sm">Detay</a>
                 <a href="kullaniciyetki.php?id=<?php echo $row['KullaniciID']; ?>" class="btn btn-warning btn-sm">Yetki Güncelle</a>

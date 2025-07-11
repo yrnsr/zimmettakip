@@ -20,7 +20,7 @@ if (!isset($_GET['id'])) {
 $zimmetID = (int)$_GET['id'];
 
 $sql = "SELECT z.*, p.Ad AS PersonelAd, p.Soyad AS PersonelSoyad, p.Sicil, p.Gorev, p.Departman,
-               e.Marka, e.Model, e.EsyaAdi, e.SeriNo, e.Ozellik
+               e.Marka, e.Model, e.EsyaAdi, e.SeriNo, e.Aciklama
         FROM zimmet z
         JOIN Personel p ON z.PersonelID = p.PersonelID
         JOIN Esya e ON z.EsyaID = e.EsyaID
@@ -43,9 +43,8 @@ $sheet->setCellValue('D8', $data['Gorev']);
 $sheet->setCellValue('D9', $data['Departman']);
 $sheet->setCellValue('E18', $data['Marka']);
 $sheet->setCellValue('G18', $data['Model']);
-$sheet->setCellValue('A18', $data['SeriNo']);
+$sheet->setCellValue('I18', $data['SeriNo'] . ' ' . $data['Aciklama']);
 $sheet->setCellValue('B18', $data['EsyaAdi']);
-$sheet->setCellValue('I18', $data['Aciklama']);
 $sheet->setCellValue('H46', $data['PersonelAd'] . ' ' . $data['PersonelSoyad'] . ' ' . $data['Gorev']);
 $sheet->setCellValue('A34', $data['PersonelAd'] . ' ' . $data['PersonelSoyad']);
 $sheet->setCellValue('A35', $data['Gorev']);

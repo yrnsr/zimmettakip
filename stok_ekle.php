@@ -13,7 +13,7 @@ if ($_SESSION['Role'] != 'admin') {
 }
 
 // Esya listesini al (stok eklerken seçim için)
-$esya_sorgu = "SELECT * FROM Esya ORDER BY MarkaModel ASC";
+$esya_sorgu = "SELECT * FROM Esya ORDER BY Marka ASC";
 $esya_sonuc = $conn->query($esya_sorgu);
 
 $mesaj = "";

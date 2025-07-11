@@ -1,8 +1,10 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 /**
- * Giriş kontrolü: Kullanıcı giriş yapmamışsa login sayfasına yönlendir.
+ * Giriş kontrolü
  */
 function girisKontrolu() {
     if (!isset($_SESSION['KullaniciID'])) {
@@ -12,21 +14,23 @@ function girisKontrolu() {
 }
 
 /**
- * Rol kontrolü: Kullanıcının yetkisi yoksa erişimi engelle.
- * @param array|string $izinliRoller İzin verilen roller (admin, user)
+ * Roller kontrolü – admin, user vs.
  */
-function rolKontrolu($izinliRoller = []) {
+function rolKontrolu(array $roller) {
     if (!isset($_SESSION['Role'])) {
-        header("HTTP/1.1 403 Forbidden");
-        exit("Bu sayfaya erişim yetkiniz yok.");
+        exit("Rol bilgisi bulunamadı, giriş yapınız.");
     }
-
-    if (is_string($izinliRoller)) {
-        $izinliRoller = [$izinliRoller];
-    }
-
-    if (!in_array($_SESSION['Role'], $izinliRoller)) {
-        header("HTTP/1.1 403 Forbidden");
+    if (!in_array($_SESSION['Role'], $roller)) {
         exit("Bu sayfaya erişim yetkiniz yok.");
     }
 }
+
+/**
+ * Sadece admin erişsin
+ */
+function adminKontrol() {
+    if (!isset($_SESSION['Role']) || $_SESSION['Role'] != 'admin') {
+        exit("Bu sayfaya erişim yetkiniz yok.");
+    }
+}
+?>

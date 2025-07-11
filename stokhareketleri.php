@@ -1,6 +1,17 @@
 <?php
 session_start();
 include 'baglanti.php';
+include 'kontrol.php';
+
+if (!isset($_SESSION['KullaniciID'])) {
+    header("Location: login.php");
+    exit;
+}
+
+if (!yetkiKontrol($conn, $_SESSION['KullaniciID'], 'stokhareket_islemleri')) {
+    echo "Bu sayfayı görüntüleme yetkiniz yok.";
+    exit;
+}
 
 if (!isset($_SESSION['KullaniciID'])) {
     header("Location: login.php");
