@@ -112,47 +112,11 @@
             </div>
           </form>
 
-          <?php if($role == 'admin'): ?>
-          <!-- Ekleme Formu -->
-          <div class="card shadow mb-4">
-            <div class="card-header py-3">
-              <h5 class="m-0 font-weight-bold text-success">Yeni Eşya Ekle</h5>
-            </div>
-            <div class="card-body">
-              <form method="POST" class="row g-3">
-                <div class="col-md-3">
-                  <label>Eşya ID</label>
-                  <input type="text" name="EsyaID" class="form-control" required>
-                </div>
-                <div class="col-md-3">
-                  <label>Eşya Adi</label>
-                  <input type="text" name="EsyaAdi" class="form-control" required>
-                </div>
-                <div class="col-md-3">
-                  <label>Marka</label>
-                  <input type="text" name="MarkaModel" class="form-control">
-                </div>
-              <div class="col-md-3">
-                  <label>Model</label>
-                  <input type="text" name="MarkaModel" class="form-control">
-                </div>
-                <div class="col-md-3">
-                  <label>Seri No</label>
-                  <input type="text" name="SeriNo" class="form-control">
-                </div>
-                <div class="col-md-3">
-                  <label>Özellik</label>
-                  <input type="text" name="Ozellik" class="form-control">
-                </div>
-                <div class="col-12 mt-3">
-                  <button type="submit" name="ekle" class="btn btn-success"><i class="fas fa-plus"></i> Ekle</button>
-                </div>
-              </form>
-            </div>
-          </div>
-          <?php endif; ?>
 
-          <!-- Listeleme -->
+          <?php if($role == 'admin'): ?>
+
+
+                  <!-- Listeleme -->
           <div class="card shadow">
             <div class="card-header py-3">
               <h5 class="m-0 font-weight-bold text-primary">Eşya Listesi</h5>
@@ -195,6 +159,46 @@
               </table>
             </div>
           </div>
+          <!-- Ekleme Formu -->
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h5 class="m-0 font-weight-bold text-success">Yeni Eşya Ekle</h5>
+            </div>
+            <div class="card-body">
+              <form method="POST" class="row g-3">
+                <div class="col-md-3">
+                  <label>Eşya ID</label>
+                  <input type="text" name="EsyaID" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                  <label>Eşya Adi</label>
+                  <input type="text" name="EsyaAdi" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                  <label>Marka</label>
+                  <input type="text" name="MarkaModel" class="form-control">
+                </div>
+              <div class="col-md-3">
+                  <label>Model</label>
+                  <input type="text" name="MarkaModel" class="form-control">
+                </div>
+                <div class="col-md-3">
+                  <label>Seri No</label>
+                  <input type="text" name="SeriNo" class="form-control">
+                </div>
+                <div class="col-md-3">
+                  <label>Özellik</label>
+                  <input type="text" name="Ozellik" class="form-control">
+                </div>
+                <div class="col-12 mt-3">
+                  <button type="submit" name="ekle" class="btn btn-success"><i class="fas fa-plus"></i> Ekle</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <?php endif; ?>
+
+    
 
         </div> <!-- /.container-fluid -->
       </div> <!-- End of Main Content -->

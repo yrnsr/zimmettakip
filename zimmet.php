@@ -119,6 +119,52 @@ $esyalar = $conn->query("SELECT EsyaID, Marka, Model FROM Esya");
         <input type="text" name="arama" placeholder="Zimmet ara..." value="<?php echo htmlspecialchars($arama); ?>" class="form-control mr-2">
         <button type="submit" class="btn btn-primary">Ara</button>
       </form>
+<!-- Zimmet Listesi -->
+      <div class="card shadow">
+        <div class="card-header py-3">
+          <h5 class="m-0 font-weight-bold text-primary">Zimmet Listesi</h5>
+        </div>
+        <div class="card-body table-responsive">
+          <table class="table table-bordered table-striped table-hover">
+            <thead class="thead-light">
+              <tr>
+                <th>ID</th>
+                <th>Personel</th>
+                <th>Eşya</th>
+                <th>Zimmet Tarihi</th>
+                <th>İade Tarihi</th>
+                <th>Açıklama</th>
+                <?php if($adminMi): ?><th>İşlem</th><?php endif; ?>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
+                if($result && $result->num_rows > 0){
+                  while($row = $result->fetch_assoc()){
+                    echo "<tr>
+                      <td>".htmlspecialchars($row['ZimmetID'])."</td>
+                      <td>".htmlspecialchars($row['PersonelAd']." ".$row['PersonelSoyad'])."</td>
+                      <td>".htmlspecialchars($row['EsyaMarkaModel'])."</td>
+                      <td>".htmlspecialchars($row['ZimmetTarihi'])."</td>
+                      <td>".htmlspecialchars($row['IadeTarihi'] ?: '-')."</td>
+                      <td>".htmlspecialchars($row['Aciklama'] ?? '')."</td>";
+                    if ($adminMi) {
+                      echo "<td>
+                              <a href='?duzenle=".urlencode($row['ZimmetID'])."' class='btn btn-warning btn-sm'>Düzenle</a> 
+                              <a href='?sil=".urlencode($row['ZimmetID'])."' class='btn btn-danger btn-sm' onclick=\"return confirm('Silmek istediğinize emin misiniz?');\">Sil</a>
+                              <a href='zimmet_yazdir.php?id={$row['ZimmetID']}' class='btn btn-info btn-sm'>Yazdır</a>
+                            </td>";
+                    }
+                    echo "</tr>";
+                  }
+                } else {
+                  echo "<tr><td colspan='".($adminMi ? '7' : '6')."' class='text-center'>Sonuç bulunamadı.</td></tr>";
+                }
+              ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <!-- Ekleme / Güncelleme Formu sadece admin için -->
       <?php if($adminMi): ?>
@@ -180,53 +226,7 @@ $esyalar = $conn->query("SELECT EsyaID, Marka, Model FROM Esya");
       </div>
       <?php endif; ?>
 
-      <!-- Zimmet Listesi -->
-      <div class="card shadow">
-        <div class="card-header py-3">
-          <h5 class="m-0 font-weight-bold text-primary">Zimmet Listesi</h5>
-        </div>
-        <div class="card-body table-responsive">
-          <table class="table table-bordered table-striped table-hover">
-            <thead class="thead-light">
-              <tr>
-                <th>ID</th>
-                <th>Personel</th>
-                <th>Eşya</th>
-                <th>Zimmet Tarihi</th>
-                <th>İade Tarihi</th>
-                <th>Açıklama</th>
-                <?php if($adminMi): ?><th>İşlem</th><?php endif; ?>
-              </tr>
-            </thead>
-            <tbody>
-              <?php
-                if($result && $result->num_rows > 0){
-                  while($row = $result->fetch_assoc()){
-                    echo "<tr>
-                      <td>".htmlspecialchars($row['ZimmetID'])."</td>
-                      <td>".htmlspecialchars($row['PersonelAd']." ".$row['PersonelSoyad'])."</td>
-                      <td>".htmlspecialchars($row['EsyaMarkaModel'])."</td>
-                      <td>".htmlspecialchars($row['ZimmetTarihi'])."</td>
-                      <td>".htmlspecialchars($row['IadeTarihi'] ?: '-')."</td>
-                      <td>".htmlspecialchars($row['Aciklama'] ?? '')."</td>";
-                    if ($adminMi) {
-                      echo "<td>
-                              <a href='?duzenle=".urlencode($row['ZimmetID'])."' class='btn btn-warning btn-sm'>Düzenle</a> 
-                              <a href='?sil=".urlencode($row['ZimmetID'])."' class='btn btn-danger btn-sm' onclick=\"return confirm('Silmek istediğinize emin misiniz?');\">Sil</a>
-                              <a href='zimmet_yazdir.php?id={$row['ZimmetID']}' class='btn btn-info btn-sm'>Yazdır</a>
-                            </td>";
-                    }
-                    echo "</tr>";
-                  }
-                } else {
-                  echo "<tr><td colspan='".($adminMi ? '7' : '6')."' class='text-center'>Sonuç bulunamadı.</td></tr>";
-                }
-              ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
+      
     </div> <!-- /.container-fluid -->
   </div> <!-- End of Main Content -->
   <?php include 'footer.php'; ?>
